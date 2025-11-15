@@ -13,7 +13,7 @@ export default function NotesScreen({ navigation, route }) {
     addMood({ mood, intensity, note, date: new Date() });
 
     Alert.alert('Mood Saved', `Mood: ${mood}\nIntensity: ${intensity}\nNote: ${note}`);
-    navigation.navigate('Main', { screen: 'Home' });
+    navigation.navigate('Home');
   };
 
   return (
