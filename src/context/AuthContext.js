@@ -6,6 +6,7 @@ export const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [users, setUsers] = useState([]); // list of all accounts
   const [currentUser, setCurrentUser] = useState(null); // logged user
+  const [isLoading, setIsLoading] = useState(true); // true while AsyncStorage is read
 
   // Load users from storage on start
   useEffect(() => {
@@ -17,12 +18,33 @@ export function AuthProvider({ children }) {
     saveUsers();
   }, [users]);
 
+  // Save currentUser when it changes (persist login) but only after initial load
+  useEffect(() => {
+    if (!isLoading) {
+      saveCurrentUser();
+    }
+  }, [currentUser, isLoading]);
+
   const loadUsers = async () => {
     try {
-      const json = await AsyncStorage.getItem("users");
-      if (json) setUsers(JSON.parse(json));
+      const [usersJson, currentJson] = await Promise.all([
+        AsyncStorage.getItem("users"),
+        AsyncStorage.getItem("currentUser"),
+      ]);
+
+      if (usersJson) setUsers(JSON.parse(usersJson));
+      if (currentJson) {
+        try {
+          setCurrentUser(JSON.parse(currentJson));
+        } catch (e) {
+          // currentUser may be stored as a raw string
+          setCurrentUser(currentJson);
+        }
+      }
     } catch (error) {
       console.log("Error loading users", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -31,6 +53,18 @@ export function AuthProvider({ children }) {
       await AsyncStorage.setItem("users", JSON.stringify(users));
     } catch (error) {
       console.log("Error saving users", error);
+    }
+  };
+
+  const saveCurrentUser = async () => {
+    try {
+      if (currentUser === null) {
+        await AsyncStorage.removeItem("currentUser");
+      } else {
+        await AsyncStorage.setItem("currentUser", JSON.stringify(currentUser));
+      }
+    } catch (error) {
+      console.log("Error saving current user", error);
     }
   };
 
@@ -66,6 +100,7 @@ export function AuthProvider({ children }) {
       value={{
         users,
         currentUser,
+        isLoading,
         signup,
         login,
         logout

@@ -1,4 +1,5 @@
 import React from "react";
+import { Pressable } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
@@ -25,17 +26,68 @@ function HomeStack() {
       <Stack.Screen 
         name="MoodPicker" 
         component={MoodPickerScreen} 
-        options={{ title: "Select Mood" }}
+        options={({ navigation }) => ({
+          title: "Select Mood",
+          headerLeft: () => (
+            <Pressable
+              onPress={() => navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              })}
+              style={{ marginLeft: 15, padding: 5 }}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color="#007AFF"
+              />
+            </Pressable>
+          ),
+        })}
       />
       <Stack.Screen 
         name="Intensity" 
         component={IntensityScreen} 
-        options={{ title: "Select Intensity" }}
+        options={({ navigation }) => ({
+          title: "Select Intensity",
+          headerLeft: () => (
+            <Pressable
+              onPress={() => navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              })}
+              style={{ marginLeft: 15, padding: 5 }}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color="#007AFF"
+              />
+            </Pressable>
+          ),
+        })}
       />
       <Stack.Screen 
         name="Notes" 
         component={NotesScreen} 
-        options={{ title: "Add Notes" }}
+        options={({ navigation }) => ({
+          title: "Add Notes",
+          headerLeft: () => (
+            <Pressable
+              onPress={() => navigation.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              })}
+              style={{ marginLeft: 15, padding: 5 }}
+            >
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color="#007AFF"
+              />
+            </Pressable>
+          ),
+        })}
       />
     </Stack.Navigator>
   );

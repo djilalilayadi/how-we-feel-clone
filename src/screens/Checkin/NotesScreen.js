@@ -13,7 +13,11 @@ export default function NotesScreen({ navigation, route }) {
     addMood({ mood, intensity, note, date: new Date() });
 
     Alert.alert('Mood Saved', `Mood: ${mood}\nIntensity: ${intensity}\nNote: ${note}`);
-    navigation.navigate('Home');
+    // Reset navigation stack to Home, clearing the check-in flow
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Home' }],
+    });
   };
 
   return (
