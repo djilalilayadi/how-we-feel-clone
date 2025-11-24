@@ -1,33 +1,46 @@
-import React from "react";
-import { Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Ionicons } from "@expo/vector-icons";
+import { useContext } from "react";
+import { Pressable } from "react-native";
 
-import HomeScreen from "../screens/HomeScreen";
-import HistoryScreen from "../screens/HistoryScreen";
-import InsightsScreen from "../screens/InsightsScreen";
-import MoodPickerScreen from "../screens/Checkin/MoodPickerScreen";
+import { LanguageContext } from "../context/LanguageContext";
+import { ThemeContext } from "../context/ThemeContext";
 import IntensityScreen from "../screens/Checkin/IntensityScreen";
+import MoodPickerScreen from "../screens/Checkin/MoodPickerScreen";
 import NotesScreen from "../screens/Checkin/NotesScreen";
+import HistoryScreen from "../screens/HistoryScreen";
+import HomeScreen from "../screens/HomeScreen";
+import InsightsScreen from "../screens/InsightsScreen";
+import ManageMoodsScreen from "../screens/ManageMoodsScreen";
+import SettingsScreen from "../screens/SettingsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 // Nested stack navigator for Home tab (includes check-in flow)
 function HomeStack() {
+  const { t } = useContext(LanguageContext);
+  const { colors } = useContext(ThemeContext);
+
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="Home" 
-        component={HomeScreen} 
-        options={{ headerShown: true, title: "Home" }}
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.foreground,
+        headerTitleStyle: { color: colors.foreground },
+      }}
+    >
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: true, title: t('home') }}
       />
-      <Stack.Screen 
-        name="MoodPicker" 
-        component={MoodPickerScreen} 
+      <Stack.Screen
+        name="MoodPicker"
+        component={MoodPickerScreen}
         options={({ navigation }) => ({
-          title: "Select Mood",
+          title: t('selectMood'),
           headerLeft: () => (
             <Pressable
               onPress={() => navigation.reset({
@@ -39,17 +52,17 @@ function HomeStack() {
               <Ionicons
                 name="arrow-back"
                 size={24}
-                color="#007AFF"
+                color={colors.primary}
               />
             </Pressable>
           ),
         })}
       />
-      <Stack.Screen 
-        name="Intensity" 
-        component={IntensityScreen} 
+      <Stack.Screen
+        name="Intensity"
+        component={IntensityScreen}
         options={({ navigation }) => ({
-          title: "Select Intensity",
+          title: t('selectIntensity'),
           headerLeft: () => (
             <Pressable
               onPress={() => navigation.reset({
@@ -61,17 +74,17 @@ function HomeStack() {
               <Ionicons
                 name="arrow-back"
                 size={24}
-                color="#007AFF"
+                color={colors.primary}
               />
             </Pressable>
           ),
         })}
       />
-      <Stack.Screen 
-        name="Notes" 
-        component={NotesScreen} 
+      <Stack.Screen
+        name="Notes"
+        component={NotesScreen}
         options={({ navigation }) => ({
-          title: "Add Notes",
+          title: t('addNotes'),
           headerLeft: () => (
             <Pressable
               onPress={() => navigation.reset({
@@ -83,7 +96,7 @@ function HomeStack() {
               <Ionicons
                 name="arrow-back"
                 size={24}
-                color="#007AFF"
+                color={colors.primary}
               />
             </Pressable>
           ),
@@ -93,7 +106,37 @@ function HomeStack() {
   );
 }
 
+// Settings Stack
+function SettingsStack() {
+  const { t } = useContext(LanguageContext);
+  const { colors } = useContext(ThemeContext);
+
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.foreground,
+        headerTitleStyle: { color: colors.foreground },
+      }}
+    >
+      <Stack.Screen
+        name="SettingsMain"
+        component={SettingsScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ManageMoods"
+        component={ManageMoodsScreen}
+        options={{ title: t('manageMoods') }}
+      />
+    </Stack.Navigator>
+  );
+}
+
 export default function BottomTabs() {
+  const { t } = useContext(LanguageContext);
+  const { colors, theme } = useContext(ThemeContext);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -106,22 +149,33 @@ export default function BottomTabs() {
             iconName = focused ? "time" : "time-outline";
           } else if (route.name === "Insights") {
             iconName = focused ? "analytics" : "analytics-outline";
+          } else if (route.name === "SettingsStack") {
+            iconName = focused ? "settings" : "settings-outline";
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: "#007AFF",
-        tabBarInactiveTintColor: "gray",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: theme === 'dark' ? '#888' : 'gray',
+        headerStyle: {
+          backgroundColor: colors.background,
+        },
+        headerTintColor: colors.foreground,
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
+        },
         headerShown: false,
       })}
     >
-      <Tab.Screen 
-        name="HomeStack" 
-        component={HomeStack} 
-        options={{ title: "Home" }}
+      <Tab.Screen
+        name="HomeStack"
+        component={HomeStack}
+        options={{ title: t('home') }}
       />
-      <Tab.Screen name="History" component={HistoryScreen} />
-      <Tab.Screen name="Insights" component={InsightsScreen} />
+      <Tab.Screen name="History" component={HistoryScreen} options={{ title: t('history'), headerShown: true }} />
+      <Tab.Screen name="Insights" component={InsightsScreen} options={{ title: t('insights'), headerShown: true }} />
+      <Tab.Screen name="SettingsStack" component={SettingsStack} options={{ title: t('settings') }} />
     </Tab.Navigator>
   );
 }

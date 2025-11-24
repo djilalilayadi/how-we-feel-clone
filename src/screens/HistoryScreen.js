@@ -1,17 +1,19 @@
-import React, { useContext } from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { useContext } from 'react';
+import { ScrollView, Text, View } from 'react-native';
 import { MoodContext } from '../context/MoodContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 export default function HistoryScreen() {
   const { moods } = useContext(MoodContext);
+  const { colors } = useContext(ThemeContext);
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 20, marginBottom: 10 }}>Mood History</Text>
+    <View style={{ flex: 1, padding: 20, backgroundColor: colors.background }}>
+      <Text style={{ fontSize: 20, marginBottom: 10, color: colors.foreground }}>Mood History</Text>
 
       <ScrollView>
         {moods.length === 0 ? (
-          <Text>No moods logged yet.</Text>
+          <Text style={{ color: colors.mutedForeground }}>No moods logged yet.</Text>
         ) : (
           moods
             .slice()
@@ -22,15 +24,16 @@ export default function HistoryScreen() {
                 style={{
                   padding: 10,
                   borderBottomWidth: 1,
-                  borderColor: '#ccc',
+                  borderColor: colors.border,
                   marginBottom: 5,
                   borderRadius: 5,
+                  backgroundColor: colors.card
                 }}
               >
-                <Text>Mood: {item.mood}</Text>
-                <Text>Intensity: {item.intensity}</Text>
-                <Text>Note: {item.note}</Text>
-                <Text>Date: {item.date instanceof Date ? item.date.toLocaleString() : new Date(item.date).toLocaleString()}</Text>
+                <Text style={{ color: colors.foreground, fontWeight: 'bold' }}>Mood: {item.mood}</Text>
+                <Text style={{ color: colors.mutedForeground }}>Intensity: {item.intensity}</Text>
+                {item.note ? <Text style={{ color: colors.mutedForeground }}>Note: {item.note}</Text> : null}
+                <Text style={{ color: colors.mutedForeground, fontSize: 12 }}>Date: {item.date instanceof Date ? item.date.toLocaleString() : new Date(item.date).toLocaleString()}</Text>
               </View>
             ))
         )}

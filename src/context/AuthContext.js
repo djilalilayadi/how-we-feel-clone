@@ -10,63 +10,61 @@ export function AuthProvider({ children }) {
 
   // Load users from storage on start
   useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const [usersJson, currentJson] = await Promise.all([
+          AsyncStorage.getItem("users"),
+          AsyncStorage.getItem("currentUser"),
+        ]);
+
+        if (usersJson) setUsers(JSON.parse(usersJson));
+        if (currentJson) {
+          try {
+            setCurrentUser(JSON.parse(currentJson));
+          } catch {
+            // currentUser may be stored as a raw string
+            setCurrentUser(currentJson);
+          }
+        }
+      } catch (error) {
+        console.log("Error loading users", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
     loadUsers();
   }, []);
 
   // Save users when list changes
   useEffect(() => {
+    const saveUsers = async () => {
+      try {
+        await AsyncStorage.setItem("users", JSON.stringify(users));
+      } catch (error) {
+        console.log("Error saving users", error);
+      }
+    };
     saveUsers();
   }, [users]);
 
   // Save currentUser when it changes (persist login) but only after initial load
   useEffect(() => {
+    const saveCurrentUser = async () => {
+      try {
+        if (currentUser === null) {
+          await AsyncStorage.removeItem("currentUser");
+        } else {
+          await AsyncStorage.setItem("currentUser", JSON.stringify(currentUser));
+        }
+      } catch (error) {
+        console.log("Error saving current user", error);
+      }
+    };
+
     if (!isLoading) {
       saveCurrentUser();
     }
   }, [currentUser, isLoading]);
-
-  const loadUsers = async () => {
-    try {
-      const [usersJson, currentJson] = await Promise.all([
-        AsyncStorage.getItem("users"),
-        AsyncStorage.getItem("currentUser"),
-      ]);
-
-      if (usersJson) setUsers(JSON.parse(usersJson));
-      if (currentJson) {
-        try {
-          setCurrentUser(JSON.parse(currentJson));
-        } catch (e) {
-          // currentUser may be stored as a raw string
-          setCurrentUser(currentJson);
-        }
-      }
-    } catch (error) {
-      console.log("Error loading users", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const saveUsers = async () => {
-    try {
-      await AsyncStorage.setItem("users", JSON.stringify(users));
-    } catch (error) {
-      console.log("Error saving users", error);
-    }
-  };
-
-  const saveCurrentUser = async () => {
-    try {
-      if (currentUser === null) {
-        await AsyncStorage.removeItem("currentUser");
-      } else {
-        await AsyncStorage.setItem("currentUser", JSON.stringify(currentUser));
-      }
-    } catch (error) {
-      console.log("Error saving current user", error);
-    }
-  };
 
   const signup = (username, password) => {
     // check if exists

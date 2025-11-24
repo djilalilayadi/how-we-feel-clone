@@ -3,18 +3,34 @@ import { registerRootComponent } from 'expo';
 import { NavigationContainer } from '@react-navigation/native';
 import RootNavigator from './src/navigation/RootNavigator';
 
-// context providers
+import { StatusBar } from 'expo-status-bar';
 import { AuthProvider } from './src/context/AuthContext';
 import { MoodProvider } from './src/context/MoodContext';
+import { ThemeProvider, ThemeContext } from './src/context/ThemeContext';
+import { LanguageProvider } from './src/context/LanguageContext';
+
+function AppContent() {
+  const { theme } = React.useContext(ThemeContext);
+  return (
+    <>
+      <NavigationContainer>
+        <RootNavigator />
+      </NavigationContainer>
+      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+    </>
+  );
+}
 
 function App() {
   return (
     <AuthProvider>
-      <MoodProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </MoodProvider>
+      <ThemeProvider>
+        <LanguageProvider>
+          <MoodProvider>
+            <AppContent />
+          </MoodProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

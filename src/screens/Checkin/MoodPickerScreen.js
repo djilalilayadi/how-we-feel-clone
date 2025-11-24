@@ -1,40 +1,34 @@
-import React from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
-
-const moods = [
-  { name: 'Happy', emoji: '😊', color: '#FFD700' },
-  { name: 'Sad', emoji: '😔', color: '#87CEEB' },
-  { name: 'Angry', emoji: '😡', color: '#FF4500' },
-  { name: 'Anxious', emoji: '😰', color: '#FFA500' },
-  { name: 'Excited', emoji: '🤩', color: '#FF69B4' },
-  { name: 'Calm', emoji: '😌', color: '#98FB98' },
-  { name: 'Tired', emoji: '😴', color: '#D3D3D3' },
-  { name: 'Confused', emoji: '😕', color: '#DDA0DD' },
-  { name: 'Grateful', emoji: '🙏', color: '#FFB6C1' },
-  { name: 'Frustrated', emoji: '😤', color: '#FF6347' },
-  { name: 'Loved', emoji: '🥰', color: '#FF1493' },
-  { name: 'Stressed', emoji: '😓', color: '#CD5C5C' },
-];
+import { useContext } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { MOODS, getMoodColor } from '../../constants/moods';
+import { LanguageContext } from '../../context/LanguageContext';
+import { MoodContext } from '../../context/MoodContext';
+import { ThemeContext } from '../../context/ThemeContext';
 
 export default function MoodPickerScreen({ navigation }) {
+  const { addMood } = useContext(MoodContext);
+  const { colors } = useContext(ThemeContext);
+  const { t } = useContext(LanguageContext);
+
+  const handleMoodSelect = (mood) => {
+    navigation.navigate('Intensity', { mood: mood.name });
+  };
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>How are you feeling?</Text>
-      <Text style={styles.subtitle}>Select your current mood</Text>
-      
-      <View style={styles.moodGrid}>
-        {moods.map((mood) => (
-          <Pressable
-            key={mood.name}
-            style={({ pressed }) => [
-              styles.moodButton,
-              { backgroundColor: mood.color, opacity: pressed ? 0.7 : 1 },
-            ]}
-            onPress={() => navigation.navigate('Intensity', { mood: mood.name })}
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]} contentContainerStyle={styles.content}>
+      <Text style={[styles.title, { color: colors.foreground }]}>{t('howAreYouFeeling')}</Text>
+      <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>{t('selectMood')}</Text>
+
+      <View style={styles.grid}>
+        {MOODS.map((mood, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[styles.moodButton, { backgroundColor: getMoodColor(mood.name, colors) }]}
+            onPress={() => handleMoodSelect(mood)}
           >
             <Text style={styles.emoji}>{mood.emoji}</Text>
             <Text style={styles.moodName}>{mood.name}</Text>
-          </Pressable>
+          </TouchableOpacity>
         ))}
       </View>
     </ScrollView>
@@ -44,11 +38,11 @@ export default function MoodPickerScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
   },
   content: {
     padding: 20,
     paddingBottom: 40,
+    alignItems: 'center',
   },
   title: {
     fontSize: 28,
@@ -56,19 +50,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     marginBottom: 8,
-    color: '#333',
   },
   subtitle: {
     fontSize: 16,
-    textAlign: 'center',
     marginBottom: 30,
-    color: '#666',
+    textAlign: 'center',
   },
-  moodGrid: {
+  grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 15,
+    justifyContent: 'space-around',
+    width: '100%',
   },
   moodButton: {
     width: '30%',
